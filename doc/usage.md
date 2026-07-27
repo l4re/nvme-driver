@@ -157,12 +157,12 @@ line options:
   Name of a provided capability that adheres to the dataspace protocol.
 
 <hr>
-## Building and Configuration
+## Building and Configuration {#l4re_servers_nvme_driver_config}
 
 The NVMe server can be built using the L4Re build system. Just place this
 project into your `pkg` directory. The resulting binary is called `nvme-drv`
 
-## Starting the service
+## Starting the service {#l4re_servers_nvme_driver_starting}
 
 The NVMe server can be started with Lua like this:
 
