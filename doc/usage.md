@@ -92,8 +92,8 @@ line options:
 
   This parameter opens a scope for the following subparameters:
 
-  * `--device <<SN>:n<NSID> | <SN>:n<NSID>:<PARTNUM> | [partuuid:]<UUID> |
-  [partlabel:]<LABEL>>`
+  *
+  `--device <<SN>:n<NSID> | <SN>:n<NSID>:<PARTNUM> | [partuuid:]<UUID> | [partlabel:]<LABEL>>`
 
     This option denotes either the NVMe namespace, or a partition on such a
     namespace to be exported for the client specified in the preceding `client`
@@ -178,9 +178,9 @@ L4.default_loader:start({
 ```
 
 First an IPC gate (`nvme_bus`) is created which is used between the NVMe server
-and a client to request access to a particular disk or partition. The server-
-side is assigned to the optional `svr` capability of the NVMe server. See the
-section below on how to configure access to a disk or partition.
+and a client to request access to a particular disk or partition. The
+server-side is assigned to the optional `svr` capability of the NVMe server. See
+the section below on how to configure access to a disk or partition.
 
 The NVMe server needs access to a virtual bus capability (`vbus`). On the
 virtual bus the NVMe server searches for NVMe compliant storage controllers.
@@ -192,11 +192,11 @@ Prior to connecting a client to a virtual block session it has to be created
 using the following Lua function. It has to be called on the client side of the
 IPC gate capability whose server side is bound to the NVMe server.
 
-Call:   `create(0, "device=<<SN>:n<NSID> | <SN>:n<NSID>:<PARTNUM> |
-[partuuid:]<UUID> | [partlabel:]<LABEL>>" [, "ds-max=<max>", "read-only"])`
+Call:
+`create(0, "device=<<SN>:n<NSID> | <SN>:n<NSID>:<PARTNUM> | [partuuid:]<UUID> | [partlabel:]<LABEL>>" [, "ds-max=<max>", "read-only"])`
 
-* `"device=<<SN>:n<NSID> | <SN>:n<NSID>:<PARTNUM> | [partuuid:]<UUID> |
-[partlabel:]<LABEL>>"`
+*
+`"device=<<SN>:n<NSID> | <SN>:n<NSID>:<PARTNUM> | [partuuid:]<UUID> | [partlabel:]<LABEL>>"`
 
   This string denotes either the NVMe namespace, or a partition on such a
   namespace that the client wants to be exported via the Virtio block interface.
@@ -243,53 +243,49 @@ NVMe server using the Virtio block protocol.
 A couple of examples on how to request different disks or partitions are listed
 below.
 
-* Request an entire NVMe namespace
+* **Request an entire NVMe namespace**
 
-Assume the NVMe server reported an NVMe controller with the following serial
-number (running in QEMU):
+  Assume the NVMe server reported an NVMe controller with the following serial
+  number (running in QEMU):
+  ```
+  Serial Number: 1234
+  ```
 
-```
-Serial Number: 1234
-```
+  A client can connect to NSID 1 on this controller like this:
+  ```lua
+  vda = nvme_bus:create(0, "ds-max=5", "device=1234:n1")
+  ```
 
-A client can connect to NSID 1 on this controller like this:
+* **Request a partition using a partition number**
 
-```lua
-vda = nvme_bus:create(0, "ds-max=5", "device=1234:n1")
-```
+  Assume the NVMe server reported an NVMe controller with the following serial
+  number (running in QEMU):
+  ```
+  Serial Number: 1234
+  ```
 
-* Request a partition using a partition number
+  A client can connect to partition 2 on namespace 1 on this controller like
+  this:
+  ```lua
+  vda = nvme_bus:create(0, "ds-max=5", "device=1234:n1:2")
+  ```
 
-Assume the NVMe server reported an NVMe controller with the following serial
-number (running in QEMU):
+* **Request a partition with the given UUID**
 
-```
-Serial Number: 1234
-```
+  ```lua
+  vda = nvme_bus:create(0, "ds-max=5", "device=partuuid:88E59675-4DC8-469A-98E4-B7B021DC7FBE")
+  ```
 
-A client can connect to partition 2 on namespace 1 on this controller like this:
+* **Request a partition using a label**
 
-```lua
-vda = nvme_bus:create(0, "ds-max=5", "device=1234:n1:2")
-```
+  Assume there is a partition with label 'foobar'. A client can connect to it
+  using the following snippet:
+  ```lua
+  vda = nvme_bus:create(0, "ds-max=5", "device=partlabel:foobar")
+  ```
 
-* Request a partition with the given UUID
-
-```lua
-vda = nvme_bus:create(0, "ds-max=5", "device=partuuid:88E59675-4DC8-469A-98E4-B7B021DC7FBE")
-```
-
-* Request a partition using a label
-
-Assume there is a partition with label 'foobar'. A client can connect to it
-using the following snippet:
-
-```lua
-vda = nvme_bus:create(0, "ds-max=5", "device=partlabel:foobar")
-```
-
-* A more elaborate example with a static client. The client uses the client side
-of the `nvme_cl1` capability to communicate with the NVMe server.
+* **A more elaborate example with a static client.** The client uses the client
+side of the `nvme_cl1` capability to communicate with the NVMe server.
 
   ```lua
   local nvme_cl1 = L4.default_loader:new_channel();
