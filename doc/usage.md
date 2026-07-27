@@ -43,15 +43,12 @@ The factory of the NVMe server allows creation of the following objects:
 
   Trusted dataspaces
 
-  Multiple capability names can be provided by the `--register-ds` command line
-  parameter.
-
 * `client`
 
   Static client
 
-  Multiple capability names can be provided by the `--client` command line
-  parameter.
+  Needs server right. Multiple capability names can be provided by the
+  `--client <cap_name>` command line parameter.
 
 * `svr`
 
@@ -87,8 +84,11 @@ line options:
 
   Can be used multiple times.
 
-  Name of a provided capability with server rights that adheres to the ipc
-  protocol.
+  This command has the following side effects:
+  - A capability with the given name is expected in the capability space of this
+  task.
+
+  String value.
 
   This parameter opens a scope for the following subparameters:
 
@@ -154,7 +154,7 @@ line options:
 
   Can be used multiple times.
 
-  Name of a provided capability that adheres to the dataspace protocol.
+  String value.
 
 <hr>
 ## Building and Configuration {#l4re_servers_nvme_driver_config}

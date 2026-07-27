@@ -50,8 +50,10 @@ cmds:
       - name: 'client'
         metavar: 'cap_name'
         desc: Connect a static client.
-        type: cap
-        cap-name: 'client'
+        type: str
+        side-effects:
+          - type: 'expect-cap'
+            name: 'client'
         multiple: true
         needs-server-right: true
       - name: 'device'
@@ -104,8 +106,10 @@ cmds:
       multiple dataspaces.
 
       The option's parameter is the name of a dataspace capability.
-    type: cap
-    cap-name: 'dataspace'
+    type: str
+    side-effect:
+      - type: 'expect-cap'
+        name: 'dataspace'
     multiple: true
 text-after-cmds: |
   ## Building and Configuration {#l4re_servers_nvme_driver_config}
