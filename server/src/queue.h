@@ -62,6 +62,27 @@ struct Sqe
   l4_uint32_t cdw14;
   l4_uint32_t cdw15;
 
+  /**
+   * Initialize Submission Queue Entry so that it can be populated with a new
+   * command.
+   *
+   * Resets all fields to zero.
+   */
+  inline void init() volatile
+  {
+    cdw0 = 0;
+    nsid = 0;
+    mptr = 0;
+    prp.prp1 = 0;
+    prp.prp2 = 0;
+    cdw10 = 0;
+    cdw11 = 0;
+    cdw12 = 0;
+    cdw13 = 0;
+    cdw14 = 0;
+    cdw15 = 0;
+  }
+
   CXX_BITFIELD_MEMBER(0, 7, opc, cdw0);    ///< Opcode
   CXX_BITFIELD_MEMBER(14, 15, psdt, cdw0); ///< PRP or SGL Data Transfer
   CXX_BITFIELD_MEMBER(16, 31, cid, cdw0);  ///< Command Identifier
@@ -98,9 +119,20 @@ struct Sqe
 struct Cqe
 {
   l4_uint32_t dw0;
-  l4_uint32_t dw1;
+  l4_uint32_t dw1;  // reserved
   l4_uint32_t dw2;
   l4_uint32_t dw3;
+
+  /**
+   * Initialize Completion Queue Entry.
+   *
+   * Host software only has to initialize the DW3.P field. All other bits are
+   * updated by the device.
+   */
+  inline void init() volatile
+  {
+    dw3 = 0;
+  }
 
   CXX_BITFIELD_MEMBER_RO(16, 31, sqid, dw2); ///< SQ Identifier
   CXX_BITFIELD_MEMBER_RO(0, 15, sqhd, dw2);  ///< SQ Head Pointer
@@ -125,7 +157,6 @@ public:
     _buf =
       cxx::make_ref_obj<Inout_buffer>(l4_round_page(size * _entry_size), dma,
                                       dir, L4Re::Rm::F::Cache_uncached);
-    memset(_buf->get<void *>(), 0, _buf->size());
   }
 
   l4_addr_t phys_base() const { return _buf->pget(); }
@@ -195,7 +226,7 @@ public:
     Sqe volatile *sqe = _buf->get<Sqe>(_tail * _entry_size);
     _tail = wrap_around(_tail + 1);
 
-    memset((void *)sqe, 0, sizeof(*sqe));
+    sqe->init();
     sqe->cid() = cid;
     return sqe;
   }
@@ -251,6 +282,9 @@ public:
   : Queue(size, y, dstrd, regs, dma, L4Re::Dma_space::Direction::From_device),
     _p(true)
   {
+    Cqe volatile *cqe = _buf->get<Cqe>(0);
+    for (unsigned i = 0; i < size; i++)
+      cqe[i].init();
   }
 
   Cqe volatile *consume()
