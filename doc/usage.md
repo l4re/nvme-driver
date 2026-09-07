@@ -186,7 +186,11 @@ The NVMe server needs access to a virtual bus capability (`vbus`). On the
 virtual bus the NVMe server searches for NVMe compliant storage controllers.
 Please see io's documentation about how to setup a virtual bus.
 
-## Virtio block host {#l4re_servers_nvme_driver_param_virtio_block_host}
+
+<hr>
+## Factory Options {#l4re_servers_nvme_driver_factory_options}
+
+### Virtio block host {#l4re_servers_nvme_driver_param_virtio_block_host}
 
 Prior to connecting a client to a virtual block session it has to be created
 using the following Lua function. It has to be called on the client side of the
