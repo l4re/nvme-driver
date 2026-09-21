@@ -547,10 +547,9 @@ main(int argc, char *const *argv)
 
   trusted_dataspaces = std::make_shared<Ds_vector>();
 
-  if (int err_code = parse_args(argc, argv) < 0)
+  if (parse_args(argc, argv) < 0)
     {
-      Err().printf("Error during command line argument parsing: %d\n",
-                   err_code);
+      Err().printf("Error during command line argument parsing\n");
       Err().printf(usage_str, argv[0]);
       return EXIT_FAILURE;
     }
